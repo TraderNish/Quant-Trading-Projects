@@ -1,0 +1,62 @@
+
+/*
+
+This code uses the pandas library to load and manipulate the historical price data for Bitcoin, 
+the matplotlib library to visualize the data, and the tensorflow library to build and train the RNN model.
+
+The code first loads the historical price data and plots it to visualize the trends. 
+Then, it normalizes the data using the MinMaxScaler class from the sklearn library.
+Next, the code splits the data into training and testing sets, and defines the RNN model using the tf.keras library. 
+The RNN model has one LSTM layer with 64 units and a single dense output layer. 
+The model is compiled using the adam optimizer and the mean squared error loss function.
+
+The code then trains the RNN model on the training data and uses it to make predictions on the test data. 
+Finally, the code plots the predicted prices against the actual prices to evaluate the performance of the model.
+
+*/
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from sklearn.preprocessing import MinMaxScaler
+
+# Load the historical price data for Bitcoin
+df = pd.read_csv('btc_price.csv')
+
+# Plot the price data to visualize the trends
+plt.plot(df['Close'])
+plt.xlabel('Time')
+plt.ylabel('Price (USD)')
+plt.show()
+
+# Normalize the price data using MinMaxScaler
+scaler = MinMaxScaler()
+df['Close'] = scaler.fit_transform(df[['Close']])
+
+# Split the data into training and testing sets
+train_data = df.iloc[:int(df.shape[0] * 0.8), :]
+test_data = df.iloc[int(df.shape[0] * 0.8):, :]
+
+# Define the RNN model
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.LSTM(64, input_shape=(None, 1)))
+model.add(tf.keras.layers.Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+
+# Train the RNN model on the training data
+x_train = np.array(train_data['Close'].values).reshape(-1, 1, 1)
+y_train = np.array(train_data['Close'].shift(-1).dropna().values)
+model.fit(x_train, y_train, epochs=100, batch_size=32, verbose=0)
+
+# Use the trained model to make predictions on the test data
+x_test = np.array(test_data['Close'].values).reshape(-1, 1, 1)
+y_pred = model.predict(x_test)
+
+# Plot the predicted prices against the actual prices
+plt.plot(y_pred, label='Predicted')
+plt.plot(y_test, label='Actual')
+plt.legend()
+plt.xlabel('Time')
+plt.ylabel('Price (USD)')
+plt.show()
