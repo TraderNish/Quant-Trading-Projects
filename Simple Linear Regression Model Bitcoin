@@ -1,0 +1,50 @@
+
+
+/*
+
+This code uses a simple linear regression model to predict the future price of Bitcoin based on the number of days since the start of the data. 
+The data is loaded into a Pandas DataFrame, and the features (number of days) and target (price) are extracted. 
+The data is split into training and testing sets, and the model is trained on the training set using the LinearRegression class from scikit-learn.
+
+The performance of the model is evaluated using mean squared error (MSE), which measures the average difference between the predicted and actual prices. 
+Finally, a scatter plot is created to visualize the results, with the red line representing the predictions made by the model.
+
+This is a very basic example, and in practice, more advanced models and techniques would likely be used. 
+However, this code provides a starting point for a quant trading project in cryptocurrencies using Python.
+
+
+*/
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Load the data
+df = pd.read_csv("btc_price_data.csv")
+
+# Create the features (x) and target (y)
+x = df["Days"]
+x = x.values.reshape(-1, 1) # Reshape the data into a 2D array
+y = df["Price"]
+
+# Split the data into training and testing sets
+x_train = x[:int(len(x) * 0.8)]
+x_test = x[int(len(x) * 0.8):]
+y_train = y[:int(len(y) * 0.8)]
+y_test = y[int(len(y) * 0.8):]
+
+# Train the model
+reg = LinearRegression().fit(x_train, y_train)
+
+# Make predictions on the testing set
+y_pred = reg.predict(x_test)
+
+# Evaluate the performance of the model
+mse = ((y_pred - y_test) ** 2).mean()
+print("Mean Squared Error:", mse)
+
+# Plot the results
+plt.scatter(x_test, y_test)
+plt.plot(x_test, y_pred, color='red')
+plt.show()
