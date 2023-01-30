@@ -1,0 +1,41 @@
+
+/*
+
+This is a simple example that 
+  calculates the daily returns for Bitcoin, 
+  plots the histogram of these returns, and 
+  generates simulated returns using the mean and standard deviation of the daily returns. 
+
+The simulated returns are then used to calculate the cumulative returns, which are plotted as a line chart.
+
+*/
+
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the historical price data for Bitcoin
+data = pd.read_csv("btc_price_data.csv")
+
+# Calculate the daily returns
+daily_returns = data['Close'].pct_change()
+
+# Plot the histogram of daily returns
+plt.hist(daily_returns, bins=50)
+plt.show()
+
+# Calculate the mean and standard deviation of daily returns
+mean_return = np.mean(daily_returns)
+std_return = np.std(daily_returns)
+
+# Generate random returns using the mean and standard deviation
+simulated_returns = np.random.normal(mean_return, std_return, len(daily_returns))
+
+# Calculate the cumulative returns from the simulated returns
+simulated_cumulative_returns = np.cumprod(1 + simulated_returns) - 1
+
+# Plot the simulated cumulative returns
+plt.plot(simulated_cumulative_returns)
+plt.show()
